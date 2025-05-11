@@ -1,12 +1,18 @@
+databases:
+  - name: finance_db
+    plan: free
+    region: germany
+    type: postgresql
+
 services:
   - type: web
     name: finance_manager_app
     runtime: python
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
-    startCommand: "gunicorn finance_manager_app.config.wsgi:application"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn config.wsgi:application"
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: finance_manager_app.config.settings
+        value: config.settings
       - key: DEBUG
         value: False
       - fromDotEnv: true
