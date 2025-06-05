@@ -18,46 +18,43 @@ export default function Register() {
       setErrorMessage("Passwords do not match.");
       return;
     }
-
     // console.log("Registering user:", formData.username);
 
     try {
-      const response = await fetch("http://localhost:8000/api/register/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: formData.username, password: formData.password }),
+      await api.post("/api/register/", {
+        username: formData.username,
+        password: formData.password,
       });
+      // console.log("Registration successful. Logging in...");
 
-      // console.log("Registration response status:", response.status);
+      const loginResponse = await api.post("/api/token/", {
+        username: formData.username,
+        password: formData.password,
+      });
+      // console.log("Login successful:", data);
 
-      if (response.ok) {
-        // console.log("Registration successful. Logging in...");
+      localStorage.setItem("access", loginResponse.data.access);
+      localStorage.setItem("refresh", loginResponse.data.refresh);
+      navigate("/dashboard");
 
-        const loginResponse = await fetch("http://localhost:8000/api/token/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: formData.username, password: formData.password }),
-        });
+    } catch (error) {
 
-        if (loginResponse.ok) {
-          const data = await loginResponse.json();
-          // console.log("Login successful:", data);
-          localStorage.setItem("access", data.access);
-          localStorage.setItem("refresh", data.refresh);
-          navigate("/dashboard");
+      if (error.response) {
+        if (error.response.status === 400) {
+          const data = error.response.data;
+          if (data.username) {
+            setErrorMessage(data.username.join(" "));
+          } else if (data.password) {
+            setErrorMessage(data.password.join(" "));
+          } else {
+            setErrorMessage(data.detail || "Registration failed. Please try again.");
+          }
         } else {
-          // console.log("Auto-login failed");
-          setErrorMessage("Registration successful, but login failed. Please log in manually.");
-          navigate("/login");
+          setErrorMessage("An error occurred. Please try again.");
         }
       } else {
-        const data = await response.json();
-        // console.log("Registration failed response:", data);
-        setErrorMessage(data.detail || "Registration failed. Please try again.");
-      }
-    } catch (error) {
-      console.error("Registration error:", error);
-      setErrorMessage("Error: " + error.message);
+        setErrorMessage("Network error. Please check your connection.");
+      };
     }
   };
 

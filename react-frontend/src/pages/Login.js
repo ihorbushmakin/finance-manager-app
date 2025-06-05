@@ -23,36 +23,28 @@ export default function Login() {
       setErrorMessage("Please enter both username and password.");
       return;
     }
-
     // console.log("Form Data:", formData);
 
     try {
-      const response = await fetch("http://localhost:8000/api/token/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      // console.log("Response Status:", response.status);
-      const data = await response.json();
-      // console.log("Response Data:", data);
-
-      if (response.ok) {
-        // console.log("Login successful, navigating to dashboard...");
-        if (rememberMe) {
-          localStorage.setItem("access", data.access);
-          localStorage.setItem("refresh", data.refresh);
-        } else {
-          sessionStorage.setItem("access", data.access);
-          sessionStorage.setItem("refresh", data.refresh);
-        }
-        navigate("/dashboard");
+      const response = await api.post("/api/token/", formData);
+      // console.log("Login successful, navigating to dashboard...");
+        
+      if (rememberMe) {
+        localStorage.setItem("access", response.data.access);
+        localStorage.setItem("refresh", response.data.refresh);
       } else {
-        setErrorMessage("Invalid username or password.");
+        sessionStorage.setItem("access", response.data.access);
+        sessionStorage.setItem("refresh", response.data.refresh);
       }
+      navigate("/dashboard");
+
     } catch (error) {
-      console.error("Error:", error);
-      setErrorMessage("An error occurred. Please try again.");
+      
+      if (error.response && error.response.status === 401) {
+        setErrorMessage("Invalid username or password.");
+      } else {
+        setErrorMessage("An error occurred. Please try again.");
+      }
     }
   };
 
