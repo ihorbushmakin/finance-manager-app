@@ -22,13 +22,13 @@ export default function Register() {
     // console.log("Registering user:", formData.username);
 
     try {
-      await api.post("/api/register/", {
+      await api.post("/register/", {
         username: formData.username,
         password: formData.password,
       });
       // console.log("Registration successful. Logging in...");
 
-      const loginResponse = await api.post("/api/token/", {
+      const loginResponse = await api.post("/token/", {
         username: formData.username,
         password: formData.password,
       });

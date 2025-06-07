@@ -27,7 +27,7 @@ export default function Login() {
     // console.log("Form Data:", formData);
 
     try {
-      const response = await api.post("/api/token/", formData);
+      const response = await api.post("/token/", formData);
       // console.log("Login successful, navigating to dashboard...");
         
       if (rememberMe) {
